@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/faculty")
@@ -48,10 +48,18 @@ public class FacultyController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Faculty>> findFaculties(@RequestParam(required = false) String color) {
+    public ResponseEntity<Collection<Faculty>> findByColorOrName(@RequestParam(required = false) String color, @RequestParam(required = false) String name) {
         if (color != null && !color.isBlank()) {
             return ResponseEntity.ok(facultyService.findByColor(color));
         }
-        return ResponseEntity.ok(Collections.emptyList());
+        if (name != null && !name.isBlank()) {
+            return ResponseEntity.ok(facultyService.findByName(name));
+        }
+        return ResponseEntity.ok(facultyService.findByColorOrName(color, name));
+    }
+
+    @GetMapping("/faculty/students/{id}")
+    public ResponseEntity<Collection<Faculty>> findByStudentsId(@PathVariable Long id) {
+        return ResponseEntity.ok(facultyService.findByStudentsId(id));
     }
 }
