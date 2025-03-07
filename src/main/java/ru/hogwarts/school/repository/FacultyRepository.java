@@ -13,6 +13,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, Long> {
 
     List<Faculty> findByColorOrName(String color, String name);
 
-    List<Faculty> findByStudentsId(long id);
+    List<Faculty> findStudentsInFaculty(long id);
 
 }

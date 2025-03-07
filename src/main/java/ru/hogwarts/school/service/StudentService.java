@@ -5,13 +5,16 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final FacultyService facultyService;
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, FacultyService facultyService) {
         this.studentRepository = studentRepository;
+        this.facultyService = facultyService;
     }
 
     public Student addStudent(Student student) {
@@ -38,7 +41,7 @@ public class StudentService {
         return studentRepository.findByAgeBetween(min, max);
     }
 
-    public Collection<Student> findByFacultyId(long id) {
-        return studentRepository.findByFacultyId(id);
+    public Collection<Student> findFacultyInStudent(long id) {
+        return studentRepository.findFacultyInStudent(id);
     }
 }
