@@ -48,7 +48,7 @@ public class FacultyService {
         return facultyRepository.findByColorOrName(color, name);
     }
 
-    public Collection<Faculty> findStudentsInFaculty(long id) {
-        return facultyRepository.findStudentsInFaculty(id);
+    public Faculty findFacultyInStudent(long id) {
+        return (Faculty) findFaculty(id).getStudents().stream().toList();
     }
 }
