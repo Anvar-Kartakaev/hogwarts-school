@@ -26,6 +26,11 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
+    @GetMapping("/age/{id}")
+    public ResponseEntity<Collection<Student>> findAllByAge(@PathVariable int id) {
+        return ResponseEntity.ok(studentService.findAllByAge(id));
+    }
+
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
@@ -51,8 +56,8 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findByAgeBetween(min, max));
     }
 
-    @GetMapping("/student-faculty/{id}")
-    public ResponseEntity<Collection<Student>> findStudentsInFaculty(@PathVariable long id) {
+    @GetMapping("/faculty-{id}")
+    public ResponseEntity<Student> findStudentsInFaculty(@PathVariable long id) {
         return ResponseEntity.ok(studentService.findStudentsInFaculty(id));
     }
 }

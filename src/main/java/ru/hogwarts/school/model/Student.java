@@ -19,11 +19,10 @@ public class Student {
     public Student() {
     }
 
-    public Student(long id, String name, int age, Faculty faculty) {
+    public Student(long id, String name, int age) {
         this.id = id;
         this.name = name;
         this.age = age;
-        this.faculty = faculty;
     }
 
     @Override
@@ -33,12 +32,12 @@ public class Student {
         if (o == null || getClass() != o.getClass())
             return false;
         Student student = (Student) o;
-        return id == student.id && age == student.age && Objects.equals(name, student.name) && Objects.equals(faculty, student.faculty);
+        return id == student.id && age == student.age && Objects.equals(name, student.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, age, faculty);
+        return Objects.hash(id, name, age);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class Student {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", age=" + age + '\'' +
-                ", faculty=" + faculty + '}';
+                '}';
     }
 
     public long getId() {
@@ -74,8 +73,8 @@ public class Student {
         this.age = age;
     }
 
-    public Faculty getFaculty() {
-        return faculty;
+    public String getFaculty() {
+        return faculty.getName();
     }
 
     public void setFaculty(Faculty faculty) {
