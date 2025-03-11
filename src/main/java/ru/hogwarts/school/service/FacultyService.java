@@ -33,4 +33,22 @@ public class FacultyService {
     public Collection<Faculty> findByColor(String color) {
         return facultyRepository.findByColor(color);
     }
+
+    public Collection<Faculty> findByName(String name) {
+        return facultyRepository.findByName(name);
+    }
+
+    public Collection<Faculty> findByColorOrName(String color, String name) {
+        if (color != null && !color.isBlank()) {
+            return findByColor(color);
+        }
+        if (name != null && !name.isBlank()) {
+            return findByName(name);
+        }
+        return facultyRepository.findByColorOrName(color, name);
+    }
+
+    public Faculty findFacultyInStudent(long id) {
+        return (Faculty) findFaculty(id).getStudents().stream().toList();
+    }
 }
