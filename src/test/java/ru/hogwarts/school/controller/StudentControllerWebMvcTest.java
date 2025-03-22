@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(StudentController.class)
@@ -51,9 +50,15 @@ class StudentControllerWebMvcTest {
     void defaultMessage() throws Exception {
         String statusApp = "Приложение работает!";
 
-        mockMvc.perform(get("/student"))
+        when(studentController.defaultMessage()).thenReturn(statusApp);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/student")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Приложение работает!", statusApp));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(statusApp));
     }
 
     @Test
@@ -311,8 +316,8 @@ class StudentControllerWebMvcTest {
         when(studentController.uploadAvatar(avatar.getId(), file));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/student/upload-avatar")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.file").value(file.getOriginalFilename()));
@@ -334,9 +339,9 @@ class StudentControllerWebMvcTest {
         when(avatarService.findAvatar(avatar.getId())).thenReturn(avatar);
 
         mockMvc.perform(MockMvcRequestBuilders.
-                get("/student/" + avatar.getId() + "/avatar/preview")
-        .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                        get("/student/" + avatar.getId() + "/avatar/preview")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.file").value(file.getOriginalFilename()));

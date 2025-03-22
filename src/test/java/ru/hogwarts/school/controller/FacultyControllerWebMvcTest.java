@@ -43,9 +43,15 @@ class FacultyControllerWebMvcTest {
     void defaultMessage() throws Exception {
         String statusApp = "Приложение работает!";
 
-        mockMvc.perform(get("/faculty"))
+        when(facultyController.defaultMessage()).thenReturn(statusApp);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/student")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Приложение работает!", statusApp));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message").value(statusApp));
     }
 
     @Test
