@@ -2,12 +2,11 @@ package ru.hogwarts.school.controller;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.model.Faculty;
@@ -21,7 +20,6 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(FacultyController.class)
@@ -30,20 +28,15 @@ class FacultyControllerWebMvcTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Bean
     private FacultyRepository facultyRepository;
 
-    @MockitoSpyBean
+    @SpyBean
     private FacultyService facultyService;
-
-    @InjectMocks
-    private FacultyController facultyController;
 
     @Test
     void defaultMessage() throws Exception {
         String statusApp = "Приложение работает!";
-
-        when(facultyController.defaultMessage()).thenReturn(statusApp);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/student")
                         .accept(MediaType.APPLICATION_JSON)
@@ -70,11 +63,11 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyController.getFacultyInfo(faculty.getId()));
+        when(facultyService.findFaculty(any())).thenReturn(faculty);
         when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        get("/faculty/info-")
+                        get("/faculty/info/" + faculty.getId())
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -160,11 +153,10 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyController.deleteFaculty(faculty.getId())).thenReturn(null);
         when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        delete("/faculty/delete-")
+                        delete("/faculty/delete/" + faculty.getId())
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -190,7 +182,7 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyController.findByColorOrName(faculty.getColor(), faculty.getName()));
+        when(facultyService.findByColorOrName(faculty.getColor(), faculty.getName()));
         when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
@@ -235,11 +227,11 @@ class FacultyControllerWebMvcTest {
 
         faculty.setStudents(students);
 
-        when(facultyController.findFacultyInStudent(faculty.getId()));
+        when(facultyService.findFacultyInStudent(faculty.getId())).thenReturn(faculty);
         when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        get("/faculty/students-")
+                        get("/faculty/students/" + faculty.getId())
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

@@ -22,7 +22,7 @@ public class FacultyController {
         return "Приложение работает!";
     }
 
-    @GetMapping("info-{id}")
+    @GetMapping("info/{id}")
     public ResponseEntity<Faculty> getFacultyInfo(@PathVariable Long id) {
         Faculty faculty = facultyService.findFaculty(id);
         if (faculty == null) {
@@ -45,7 +45,7 @@ public class FacultyController {
         return ResponseEntity.ok(foundFaculty);
     }
 
-    @DeleteMapping("delete-{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteFaculty(@PathVariable Long id) {
         facultyService.deleteFaculty(id);
         return ResponseEntity.ok().build();
@@ -56,7 +56,7 @@ public class FacultyController {
         return ResponseEntity.ok(facultyService.findByColorOrName(color, name));
     }
 
-    @GetMapping("/students-{id}")
+    @GetMapping("/students/{id}")
     public ResponseEntity<Faculty> findFacultyInStudent(@PathVariable long id) {
         return ResponseEntity.ok(facultyService.findFacultyInStudent(id));
     }

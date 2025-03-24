@@ -63,7 +63,7 @@ public class StudentController {
         return ResponseEntity.ok(foundStudent);
     }
 
-    @DeleteMapping("delete-{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.ok().build();
@@ -74,7 +74,7 @@ public class StudentController {
         return ResponseEntity.ok(studentService.findByAgeBetween(min, max));
     }
 
-    @GetMapping("/faculty-{id}")
+    @GetMapping("/faculty/{id}")
     public ResponseEntity<Student> findStudentsInFaculty(@PathVariable long id) {
         return ResponseEntity.ok(studentService.findStudentsInFaculty(id));
     }

@@ -2,13 +2,12 @@ package ru.hogwarts.school.controller;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,23 +33,18 @@ class StudentControllerWebMvcTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
+    @Bean
     private StudentRepository studentRepository;
 
-    @MockitoSpyBean
+    @SpyBean
     private StudentService studentService;
 
-    @MockitoSpyBean
+    @SpyBean
     private AvatarService avatarService;
-
-    @InjectMocks
-    private StudentController studentController;
 
     @Test
     void defaultMessage() throws Exception {
         String statusApp = "Приложение работает!";
-
-        when(studentController.defaultMessage()).thenReturn(statusApp);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/student")
                         .accept(MediaType.APPLICATION_JSON)
@@ -111,7 +105,7 @@ class StudentControllerWebMvcTest {
         when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        get("/student/age/")
+                        get("/student/age/" + student.getId())
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -197,11 +191,10 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
 
-        when(studentController.deleteStudent(student.getId())).thenReturn(null);
         when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        delete("/student/delete-")
+                        delete("/student/delete/" + student.getId())
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -241,8 +234,7 @@ class StudentControllerWebMvcTest {
         student2.get().setName(name2);
         student2.get().setAge(age2);
 
-        when(studentController.findByAgeBetween(age, age2));
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
+        when(studentRepository.findByAgeBetween(age, age2));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/student/findByAgeBetween")
@@ -286,11 +278,11 @@ class StudentControllerWebMvcTest {
 
         faculty.setStudents(students);
 
-        when(studentController.findStudentsInFaculty(student.getId()));
+        when(studentService.findStudentsInFaculty(student.getId())).thenReturn(student);
         when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        get("/student/faculty-")
+                        get("/student/faculty/" + student.getId())
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -313,9 +305,7 @@ class StudentControllerWebMvcTest {
         avatar.setId(id);
         avatar.setFilePath(file.getOriginalFilename());
 
-        when(studentController.uploadAvatar(avatar.getId(), file));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/student/upload-avatar")
+        mockMvc.perform(MockMvcRequestBuilders.post("/student/" + avatar.getId() + "/upload-avatar/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
