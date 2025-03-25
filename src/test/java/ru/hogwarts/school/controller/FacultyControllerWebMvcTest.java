@@ -5,31 +5,27 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(FacultyController.class)
+@WebMvcTest
+@Import(FacultyController.class)
 class FacultyControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Bean
-    private FacultyRepository facultyRepository;
 
     @SpyBean
     private FacultyService facultyService;
@@ -63,8 +59,7 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyService.findFaculty(any())).thenReturn(faculty);
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
+        when(facultyService.findFaculty(any(long.class))).thenReturn(faculty);
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/faculty/info/" + faculty.getId())
@@ -93,8 +88,7 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyRepository.save(faculty)).thenReturn(faculty);
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
+        when(facultyService.addFaculty(any(Faculty.class))).thenReturn(faculty);
 
         mockMvc.perform(MockMvcRequestBuilders.
                         post("/faculty")
@@ -123,8 +117,7 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyRepository.save(faculty)).thenReturn(faculty);
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
+        when(facultyService.editFaculty(any(Faculty.class))).thenReturn(faculty);
 
         mockMvc.perform(MockMvcRequestBuilders.
                         put("/faculty")
@@ -153,10 +146,10 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
+        when(facultyService.findFaculty(any(long.class))).thenReturn(faculty);
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        delete("/faculty/delete/" + faculty.getId())
+                        delete("/faculty/" + faculty.getId())
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -183,7 +176,6 @@ class FacultyControllerWebMvcTest {
         faculty.setColor(color);
 
         when(facultyService.findByColorOrName(faculty.getColor(), faculty.getName()));
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/faculty/findByColorOrName")
@@ -228,7 +220,6 @@ class FacultyControllerWebMvcTest {
         faculty.setStudents(students);
 
         when(facultyService.findFacultyInStudent(faculty.getId())).thenReturn(faculty);
-        when(facultyRepository.findById(any(long.class))).thenReturn(Optional.of(faculty));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/faculty/students/" + faculty.getId())

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,27 +14,23 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.repository.StudentRepository;
 import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(StudentController.class)
+@WebMvcTest
+@Import(StudentController.class)
 class StudentControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Bean
-    private StudentRepository studentRepository;
 
     @SpyBean
     private StudentService studentService;
@@ -52,7 +48,7 @@ class StudentControllerWebMvcTest {
                         .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(statusApp));
+                .andExpect(jsonPath("$.statusApp").value(statusApp));
     }
 
     @Test
@@ -72,7 +68,6 @@ class StudentControllerWebMvcTest {
         student.setAge(age);
 
         when(studentService.findStudent(student.getId())).thenReturn(student);
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/student")
@@ -102,7 +97,6 @@ class StudentControllerWebMvcTest {
         student.setAge(age);
 
         when(studentService.findAllByAge((int) student.getId()));
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/student/age/" + student.getId())
@@ -131,8 +125,7 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
 
-        when(studentRepository.save(student)).thenReturn(student);
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
+        when(studentService.addStudent(student)).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders.
                         post("/student")
@@ -161,8 +154,7 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
 
-        when(studentRepository.save(student)).thenReturn(student);
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
+        when(studentService.editStudent(student)).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders.
                         put("/student")
@@ -191,10 +183,10 @@ class StudentControllerWebMvcTest {
         student.setName(name);
         student.setAge(age);
 
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
+        when(studentService.findStudent(any(long.class))).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders.
-                        delete("/student/delete/" + student.getId())
+                        delete("/student/" + student.getId())
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -234,7 +226,7 @@ class StudentControllerWebMvcTest {
         student2.get().setName(name2);
         student2.get().setAge(age2);
 
-        when(studentRepository.findByAgeBetween(age, age2));
+        when(studentService.findByAgeBetween(age, age2));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/student/findByAgeBetween")
@@ -279,7 +271,6 @@ class StudentControllerWebMvcTest {
         faculty.setStudents(students);
 
         when(studentService.findStudentsInFaculty(student.getId())).thenReturn(student);
-        when(studentRepository.findById(any(long.class))).thenReturn(Optional.of(student));
 
         mockMvc.perform(MockMvcRequestBuilders.
                         get("/student/faculty/" + student.getId())
