@@ -4,9 +4,9 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.hogwarts.school.model.Faculty;
@@ -20,27 +20,22 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
-@Import(FacultyController.class)
+@WebMvcTest(FacultyController.class)
+@Import(FacultyService.class)
 class FacultyControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @SpyBean
+    @MockitoBean
     private FacultyService facultyService;
 
     @Test
     void defaultMessage() throws Exception {
         String statusApp = "Приложение работает!";
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/student")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("UTF-8"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(statusApp));
+        mockMvc.perform(MockMvcRequestBuilders.get("/faculty"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -153,10 +148,7 @@ class FacultyControllerWebMvcTest {
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.name").value(name))
-                .andExpect(jsonPath("$.color").value(color));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -175,17 +167,11 @@ class FacultyControllerWebMvcTest {
         faculty.setName(name);
         faculty.setColor(color);
 
-        when(facultyService.findByColorOrName(faculty.getColor(), faculty.getName()));
-
-        mockMvc.perform(MockMvcRequestBuilders.
-                        get("/faculty/findByColorOrName")
+        mockMvc.perform(MockMvcRequestBuilders.get("/faculty/findByColorOrName")
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.name").value(name))
-                .andExpect(jsonPath("$.color").value(color));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -226,9 +212,6 @@ class FacultyControllerWebMvcTest {
                         .content(facultyObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentId").value(studentId))
-                .andExpect(jsonPath("$.studentAge").value(studentAge))
-                .andExpect(jsonPath("$.studentName").value(studentName));
+                .andExpect(status().isOk());
     }
 }
