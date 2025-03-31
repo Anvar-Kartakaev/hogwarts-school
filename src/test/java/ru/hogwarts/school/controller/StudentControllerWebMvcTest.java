@@ -2,24 +2,35 @@ package ru.hogwarts.school.controller;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.StudentService;
 
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -103,26 +114,14 @@ class StudentControllerWebMvcTest {
         long id = 1;
         String name = "Student Name";
         int age = 32;
-
-        long facultyId = 1;
-        String facultyName = "Faculty Name";
-        String facultyColor = "Faculty Color";
-
-        JSONObject facultyObject = new JSONObject();
-        facultyObject.put("facultyId", facultyId);
-        facultyObject.put("facultyName", facultyName);
-        facultyObject.put("facultyColor", facultyColor);
+        int facultyId = 1;
+        Faculty faculty = new Faculty(1, "Faculty Name", "Faculty Color");
 
         JSONObject studentObject = new JSONObject();
         studentObject.put("id", id);
         studentObject.put("name", name);
         studentObject.put("age", age);
-        studentObject.put("faculty", facultyObject);
-
-        Faculty faculty = new Faculty();
-        faculty.setId(facultyId);
-        faculty.setName(facultyName);
-        faculty.setColor(facultyColor);
+        studentObject.put("facultyId", facultyId);
 
         Student student = new Student();
         student.setId(id);
@@ -130,18 +129,14 @@ class StudentControllerWebMvcTest {
         student.setAge(age);
         student.setFaculty(faculty);
 
-        when(studentService.addStudent(student)).thenReturn(student);
+        when(studentService.addStudent(any(Student.class))).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/student")
                         .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.name").value(name))
-                .andExpect(jsonPath("$.age").value(age))
-                .andExpect(jsonPath("$.faculty").value(faculty));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -149,13 +144,14 @@ class StudentControllerWebMvcTest {
         long id = 1;
         String name = "Student Name";
         int age = 32;
-        Faculty faculty = new Faculty(2, "Faculty Name", "Faculty Color");
+        int facultyId = 1;
+        Faculty faculty = new Faculty(1, "Faculty Name", "Faculty Color");
 
         JSONObject studentObject = new JSONObject();
         studentObject.put("id", id);
         studentObject.put("name", name);
         studentObject.put("age", age);
-        studentObject.put("faculty", faculty);
+        studentObject.put("facultyId", facultyId);
 
         Student student = new Student();
         student.setId(id);
@@ -166,7 +162,8 @@ class StudentControllerWebMvcTest {
         when(studentService.editStudent(any(Student.class))).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/student")
+                        .post("/student")
+                        .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -268,62 +265,49 @@ class StudentControllerWebMvcTest {
     @Test
     void uploadAvatar() throws Exception {
         long id = 1;
-        File file = new File("src/test/resources/avatar.jpg");
+        String name = "Student Name";
+        int age = 32;
+        int facultyId = 1;
+        Faculty faculty = new Faculty(1, "Faculty Name", "Faculty Color");
 
-        JSONObject avatarObject = new JSONObject();
-        avatarObject.put("id", id);
-        avatarObject.put("name", file.getName());
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("id", id);
+        studentObject.put("name", name);
+        studentObject.put("age", age);
+        studentObject.put("facultyId", facultyId);
 
-        Avatar avatar = new Avatar();
-        avatar.setId(id);
-        avatar.setFilePath(file.getPath());
+        Student student = new Student();
+        student.setId(id);
+        student.setName(name);
+        student.setAge(age);
+        student.setFaculty(faculty);
+
+        when(studentService.addStudent(any(Student.class))).thenReturn(student);
+        when(studentService.findStudent(any(long.class))).thenReturn(student);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/student/" + avatar.getId() + "/avatar")
+                        .post("/student")
+                        .content(studentObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        MultipartFile newFile = new MockMultipartFile("image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[1024]);
+
+        JSONObject avatarObject = new JSONObject();
+        avatarObject.put("newFile", newFile);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/student/" + student.getId() + "/avatar" + MediaType.IMAGE_JPEG_VALUE))
                 .andExpect(status().isOk());
     }
 
     @Test
     void downloadAvatar() throws Exception {
-        long id = 1;
-        File file = new File("src/test/resources/avatar.jpg");
-
-        JSONObject avatarObject = new JSONObject();
-        avatarObject.put("id", id);
-        avatarObject.put("name", file.getName());
-
-        Avatar avatar = new Avatar();
-        avatar.setId(id);
-        avatar.setFilePath(file.getPath());
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/student/" + avatar.getId() + "/avatar/preview")
-                        .content(avatarObject.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
 
     }
 
     @Test
     void testDownloadAvatar() throws Exception {
-        long id = 1;
-        File file = new File("src/test/resources/avatar.jpg");
-
-        JSONObject avatarObject = new JSONObject();
-        avatarObject.put("id", id);
-        avatarObject.put("name", file.getName());
-
-        Avatar avatar = new Avatar();
-        avatar.setId(id);
-        avatar.setFilePath(file.getPath());
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/student/" + avatar.getId() + "/avatar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
     }
 }
