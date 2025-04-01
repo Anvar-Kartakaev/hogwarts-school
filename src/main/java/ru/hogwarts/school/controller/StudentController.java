@@ -113,4 +113,19 @@ public class StudentController {
             is.transferTo(os);
         }
     }
+
+    @GetMapping("/total-student")
+    public Integer totalStudents() {
+        return studentService.totalStudents();
+    }
+
+    @GetMapping("/average-age")
+    public Integer averageAge() {
+        return studentService.getAverageAge();
+    }
+
+    @GetMapping("five-students")
+    public Collection<Student> getFiveStudents() {
+        return studentService.getFiveStudents();
+    }
 }
