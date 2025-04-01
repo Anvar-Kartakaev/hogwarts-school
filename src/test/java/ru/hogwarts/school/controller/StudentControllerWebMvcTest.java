@@ -2,17 +2,13 @@ package ru.hogwarts.school.controller;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.model.Avatar;
@@ -21,16 +17,10 @@ import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.AvatarService;
 import ru.hogwarts.school.service.StudentService;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -282,32 +272,113 @@ class StudentControllerWebMvcTest {
         student.setAge(age);
         student.setFaculty(faculty);
 
-        when(studentService.addStudent(any(Student.class))).thenReturn(student);
-        when(studentService.findStudent(any(long.class))).thenReturn(student);
+        MultipartFile file = new MockMultipartFile("image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[1024 * 300]);
+
+        JSONObject fileObject = new JSONObject();
+        fileObject.put("student", student);
+        fileObject.put("filePath", file.getOriginalFilename());
+        fileObject.put("fileSize", file.getSize());
+        fileObject.put("mediaType", file.getContentType());
+        fileObject.put("data", file.getBytes());
+
+        Avatar avatar = new Avatar();
+        avatar.setStudent(student);
+        avatar.setFilePath(file.getOriginalFilename());
+        avatar.setFileSize(file.getSize());
+        avatar.setMediaType(file.getContentType());
+        avatar.setData(file.getBytes());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/student")
-                        .content(studentObject.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .post("/student/" + student.getId() + "/avatar")
+                        .flashAttr("file", fileObject)
+                        .contentType(MediaType.IMAGE_JPEG_VALUE))
                 .andExpect(status().isOk());
 
-        MultipartFile newFile = new MockMultipartFile("image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[1024]);
-
-        JSONObject avatarObject = new JSONObject();
-        avatarObject.put("newFile", newFile);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .multipart("/student/" + student.getId() + "/avatar" + MediaType.IMAGE_JPEG_VALUE))
-                .andExpect(status().isOk());
     }
 
     @Test
     void downloadAvatar() throws Exception {
+        long id = 1;
+        String name = "Student Name";
+        int age = 32;
+        int facultyId = 1;
+        Faculty faculty = new Faculty(1, "Faculty Name", "Faculty Color");
 
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("id", id);
+        studentObject.put("name", name);
+        studentObject.put("age", age);
+        studentObject.put("facultyId", facultyId);
+
+        Student student = new Student();
+        student.setId(id);
+        student.setName(name);
+        student.setAge(age);
+        student.setFaculty(faculty);
+
+        MultipartFile file = new MockMultipartFile("image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[1024 * 300]);
+
+        JSONObject fileObject = new JSONObject();
+        fileObject.put("student", student);
+        fileObject.put("filePath", file.getOriginalFilename());
+        fileObject.put("fileSize", file.getSize());
+        fileObject.put("mediaType", file.getContentType());
+        fileObject.put("data", file.getBytes());
+
+        Avatar avatar = new Avatar();
+        avatar.setStudent(student);
+        avatar.setFilePath(file.getOriginalFilename());
+        avatar.setFileSize(file.getSize());
+        avatar.setMediaType(file.getContentType());
+        avatar.setData(file.getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/student/" + student.getId() + "/avatar")
+                        .flashAttr("file", fileObject)
+                        .contentType(MediaType.IMAGE_JPEG_VALUE))
+                .andExpect(status().isOk());
     }
 
     @Test
     void testDownloadAvatar() throws Exception {
+        long id = 1;
+        String name = "Student Name";
+        int age = 32;
+        int facultyId = 1;
+        Faculty faculty = new Faculty(1, "Faculty Name", "Faculty Color");
+
+        JSONObject studentObject = new JSONObject();
+        studentObject.put("id", id);
+        studentObject.put("name", name);
+        studentObject.put("age", age);
+        studentObject.put("facultyId", facultyId);
+
+        Student student = new Student();
+        student.setId(id);
+        student.setName(name);
+        student.setAge(age);
+        student.setFaculty(faculty);
+
+        MultipartFile file = new MockMultipartFile("image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[1024 * 300]);
+
+        JSONObject fileObject = new JSONObject();
+        fileObject.put("student", student);
+        fileObject.put("filePath", file.getOriginalFilename());
+        fileObject.put("fileSize", file.getSize());
+        fileObject.put("mediaType", file.getContentType());
+        fileObject.put("data", file.getBytes());
+
+        Avatar avatar = new Avatar();
+        avatar.setStudent(student);
+        avatar.setFilePath(file.getOriginalFilename());
+        avatar.setFileSize(file.getSize());
+        avatar.setMediaType(file.getContentType());
+        avatar.setData(file.getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/student/" + student.getId() + "/avatar")
+                        .flashAttr("file", fileObject)
+                        .contentType(MediaType.IMAGE_JPEG_VALUE))
+                .andExpect(status().isOk());
     }
 }
