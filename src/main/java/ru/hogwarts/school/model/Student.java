@@ -75,8 +75,8 @@ public class Student {
         this.age = age;
     }
 
-    public long getFaculty() {
-        return faculty.getId();
+    public String getFaculty() {
+        return faculty.getName();
     }
 
     public void setFaculty(Faculty faculty) {
