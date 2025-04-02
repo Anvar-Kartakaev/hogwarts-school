@@ -30,6 +30,11 @@ public class StudentController {
         this.avatarService = avatarService;
     }
 
+    @GetMapping
+    public String defaultMessage() {
+        return "Приложение работает!";
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<Student> getStudentInfo(@PathVariable Long id) {
         Student student = studentService.findStudent(id);
@@ -64,12 +69,12 @@ public class StudentController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping("/findByAgeBetween")
     public ResponseEntity<Collection<Student>> findByAgeBetween(@RequestParam int min, @RequestParam int max) {
         return ResponseEntity.ok(studentService.findByAgeBetween(min, max));
     }
 
-    @GetMapping("/faculty-{id}")
+    @GetMapping("/faculty/{id}")
     public ResponseEntity<Student> findStudentsInFaculty(@PathVariable long id) {
         return ResponseEntity.ok(studentService.findStudentsInFaculty(id));
     }
