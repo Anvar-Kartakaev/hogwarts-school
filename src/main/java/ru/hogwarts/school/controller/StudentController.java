@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student")
@@ -127,5 +128,11 @@ public class StudentController {
     @GetMapping("five-students")
     public Collection<Student> getFiveStudents() {
         return studentService.getFiveStudents();
+    }
+
+    @GetMapping("name/{name}")
+    public ResponseEntity<List<Student>> getStudentsByName(@PathVariable("name") String name) {
+        List<Student> students = studentService.getStudentsByName(name);
+        return ResponseEntity.ok(students);
     }
 }
