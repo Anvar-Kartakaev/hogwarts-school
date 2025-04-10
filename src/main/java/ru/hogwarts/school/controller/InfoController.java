@@ -1,20 +1,22 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hogwarts.school.model.Info;
-import ru.hogwarts.school.repository.InfoRepository;
+import ru.hogwarts.school.repository.InfoServiceImpl;
 
 @RestController
 public class InfoController {
 
-    @Autowired
-    private InfoRepository infoRepository;
+    private final InfoServiceImpl infoServiceImpl;
 
-    @GetMapping
+    public InfoController(InfoServiceImpl infoServiceImpl) {
+        this.infoServiceImpl = infoServiceImpl;
+    }
+
+    @GetMapping("/port")
     public Info getInfo() {
-        return infoRepository.getInfo();
+        return infoServiceImpl.getInfo();
     }
 
 }

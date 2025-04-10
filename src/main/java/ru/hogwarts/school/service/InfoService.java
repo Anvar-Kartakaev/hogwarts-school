@@ -6,21 +6,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Info;
-import ru.hogwarts.school.repository.InfoRepository;
+import ru.hogwarts.school.repository.InfoServiceImpl;
 
 @Service
-@Profile("production")
-public class InfoService implements InfoRepository {
+@Profile("!test")
+public class InfoService implements InfoServiceImpl {
 
     Logger logger = LoggerFactory.getLogger(InfoService.class);
 
-    @Value("${hogwarts.server.port}")
+    @Value("${server.port}")
     private String port;
 
     public Info getInfo() {
-        logger.info("Start method getInfo");
-        Info info = new Info();
-        info.setPort(port);
-        return info;
+        logger.info("Start method getInfo: {}", port);
+        return new Info(port);
     }
 }

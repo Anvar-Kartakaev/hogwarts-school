@@ -13,68 +13,68 @@ import java.util.List;
 public class FacultyService {
     private final FacultyRepository facultyRepository;
 
-    Logger logger = LoggerFactory.getLogger(FacultyService.class);
+    private final static Logger logger = LoggerFactory.getLogger(FacultyService.class);
 
     public FacultyService(FacultyRepository facultyRepository) {
         this.facultyRepository = facultyRepository;
     }
 
     public Faculty addFaculty(Faculty faculty) {
-        logger.info("Start method addFaculty");
+        logger.info("Start method addFaculty: {}", faculty);
         return facultyRepository.save(faculty);
     }
 
     public Faculty findFaculty(long id) {
-        logger.info("Start method findFaculty");
+        logger.info("Start method findFaculty: {}", id);
         return facultyRepository.findById(id).get();
     }
 
     public Faculty editFaculty(Faculty faculty) {
-        logger.info("Start method editFaculty");
+        logger.info("Start method editFaculty: {}", faculty);
         return facultyRepository.save(faculty);
     }
 
     public void deleteFaculty(long id) {
-        logger.info("Start method deleteFaculty");
+        logger.info("Start method deleteFaculty: {}", id);
         facultyRepository.deleteById(id);
     }
 
     public Collection<Faculty> findByColor(String color) {
-        logger.info("Start method findByColor");
+        logger.info("Start method findByColor: {}", color);
         return facultyRepository.findByColor(color);
     }
 
     public Collection<Faculty> findByName(String name) {
-        logger.info("Start method findByName");
+        logger.info("Start method findByName: {}", name);
         return facultyRepository.findByName(name);
     }
 
     public Collection<Faculty> findByColorOrName(String color, String name) {
-        logger.error("Start method findByColorOrName");
+        logger.error("Start method findByColorOrName: color - {}, name - {}", color, name);
         if (color != null && !color.isBlank()) {
-            logger.error("Find faculty by color");
+            logger.error("Find faculty by color: {}", color);
             return findByColor(color);
         }
         if (name != null && !name.isBlank()) {
-            logger.error("Find faculty by name");
+            logger.error("Find faculty by name: {}", name);
             return findByName(name);
         }
-        logger.info("Find faculty by color and name");
+        logger.info("Find faculty by color and name: color - {}, name - {}", color, name);
         return facultyRepository.findByColorOrName(color, name);
     }
 
     public Faculty findFacultyInStudent(long id) {
-        logger.info("Start method findFacultyInStudent");
+        logger.info("Start method findFacultyInStudent: {}", id);
         return (Faculty) findFaculty(id).getStudents().stream().toList();
     }
 
     public List<Faculty> getByColor(String color) {
-        logger.info("Start method getByColor");
+        logger.info("Start method getByColor: {}", color);
         return facultyRepository.getByColor(color);
     }
 
     public List<Faculty> getByName(String name) {
-        logger.info("Start method getByName");
+        logger.info("Start method getByName: {}", name);
         return facultyRepository.getByName(name);
     }
 }

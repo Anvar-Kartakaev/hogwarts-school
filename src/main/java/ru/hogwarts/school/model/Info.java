@@ -4,7 +4,9 @@ public class Info {
 
     private String port;
 
-    public Info() {}
+    public Info(String port) {
+        this.port = port;
+    }
 
     public String getPort() {
         return port;

@@ -31,7 +31,7 @@ public class AvatarService {
     private final StudentService studentService;
     private final AvatarRepository avatarRepository;
 
-    Logger logger = LoggerFactory.getLogger(AvatarService.class);
+    private final static Logger logger = LoggerFactory.getLogger(AvatarService.class);
 
     public AvatarService(StudentService studentService, AvatarRepository avatarRepository) {
         this.studentService = studentService;
@@ -39,7 +39,7 @@ public class AvatarService {
     }
 
     public void uploadAvatar(Long id, MultipartFile file) throws IOException {
-        logger.info("Start method uploadAvatar");
+        logger.info("Start method uploadAvatar: {}, {}", id, file);
         Student student = studentService.findStudent(id);
 
         Path filePath = Path.of(avatars, id + "." + getExtension(file.getOriginalFilename()));
@@ -65,12 +65,12 @@ public class AvatarService {
     }
 
     public Avatar findAvatar(Long id) {
-        logger.info("Start method findAvatar");
+        logger.info("Start method findAvatar: {}", id);
         return avatarRepository.findById(id).orElse(new Avatar());
     }
 
     private byte[] generateImagePreview(Path filePath) throws IOException {
-        logger.info("Start method generateImagePreview");
+        logger.info("Start method generateImagePreview: {}", filePath);
         try (InputStream is = Files.newInputStream(filePath);
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -90,13 +90,13 @@ public class AvatarService {
     }
 
     public List<Avatar> getAllAvatar(Integer pageNumber, Integer pageSize) {
-        logger.info("Start method getAllAvatar");
+        logger.info("Start method getAllAvatar: pageNumber - {}, pageSize - {}", pageNumber, pageSize);
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         return avatarRepository.findAll(pageRequest).getContent();
     }
 
     public String getExtension(String fileName) {
-        logger.info("Start method getExtension");
+        logger.info("Start method getExtension: {}", fileName);
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 }
