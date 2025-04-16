@@ -135,4 +135,9 @@ public class StudentController {
         List<Student> students = studentService.getStudentsByName(name);
         return ResponseEntity.ok(students);
     }
+
+    @GetMapping("/find-all-student")
+    public ResponseEntity<List<Student>> getFindAllStudents() {
+        return ResponseEntity.ok(studentService.findAll());
+    }
 }

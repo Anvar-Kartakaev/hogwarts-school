@@ -73,4 +73,8 @@ public class StudentService {
         logger.info("Start method getStudentsByName: {}", name);
         return studentRepository.getStudentsByName(name);
     }
+
+    public List<Student> findAll() {
+        return studentRepository.findAll();
+    }
 }
