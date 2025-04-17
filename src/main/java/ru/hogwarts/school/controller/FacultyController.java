@@ -7,7 +7,11 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/faculty")
@@ -72,5 +76,26 @@ public class FacultyController {
     public ResponseEntity<List<Faculty>> getByName(@PathVariable("name") String name) {
         List<Faculty> faculty = facultyService.getByName(name);
         return ResponseEntity.ok(faculty);
+    }
+
+    @GetMapping("/all-faculty")
+    public ResponseEntity<List<Faculty>> getAllFaculty() {
+        return ResponseEntity.ok(facultyService.findAll());
+    }
+
+    @GetMapping("/long-faculty-name")
+    public String getFacultyLongName() {
+        List<String> faculties = facultyService.findAll().stream().map(Faculty::getName).toList();
+        String max = Collections.max(faculties, Comparator.comparing(s -> s.length()));
+        return max;
+    }
+
+    @GetMapping("/int-return")
+    public void getIntReturn() {
+        long start = System.currentTimeMillis();
+//        int sum = Stream.iterate(1, a -> a +1).limit(1_000_000).reduce(0, (a, b) -> a + b );
+        int sum = IntStream.range(1, 1_000_000).sum();
+        long end = System.currentTimeMillis();
+        System.out.println(sum + "\n" + (end - start));
     }
 }
