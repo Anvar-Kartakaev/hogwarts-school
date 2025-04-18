@@ -19,6 +19,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping("/student")
@@ -139,5 +143,21 @@ public class StudentController {
     @GetMapping("/find-all-student")
     public ResponseEntity<List<Student>> getFindAllStudents() {
         return ResponseEntity.ok(studentService.findAll());
+    }
+
+    @GetMapping("/find-name-a")
+    public ResponseEntity<List<String>> getFindNameA() {
+        List<String> students = studentService.findAll().stream()
+                .filter(s -> s.getName().startsWith("А"))
+                .map(Student::getName)
+                .map(String::toUpperCase)
+                .sorted()
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/average-age-allStudents")
+    public Double getAverageAgeAllStudents() {
+        return studentService.findAll().stream().map(Student::getAge).mapToDouble(Integer::intValue).average().getAsDouble();
     }
 }

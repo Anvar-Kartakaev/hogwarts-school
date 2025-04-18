@@ -77,4 +77,8 @@ public class FacultyService {
         logger.info("Start method getByName: {}", name);
         return facultyRepository.getByName(name);
     }
+
+    public List<Faculty> findAll() {
+        return facultyRepository.findAll();
+    }
 }
