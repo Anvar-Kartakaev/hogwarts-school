@@ -1,5 +1,6 @@
 package ru.hogwarts.school.controller;
 
+import com.sun.tools.javac.Main;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -159,5 +162,60 @@ public class StudentController {
     @GetMapping("/average-age-allStudents")
     public Double getAverageAgeAllStudents() {
         return studentService.findAll().stream().map(Student::getAge).mapToDouble(Integer::intValue).average().getAsDouble();
+    }
+
+    public Integer count = 0;
+
+    @GetMapping("/students/print-parallel")
+    public void printParallelStudentsName() {
+        List<Student> students = studentService.findAll();
+
+        System.out.println(count + ". Student #1 - " + students.get(0).getName());
+        System.out.println(count + ". Student #2 - " + students.get(1).getName());
+
+        new Thread(() -> {
+            System.out.println(count + ". Student #3 - " + students.get(2).getName());
+            System.out.println(count + ". Student #4 - " + students.get(3).getName());
+        }).start();
+
+        new Thread(() -> {
+            System.out.println(count + ". Student #5 - " + students.get(4).getName());
+            System.out.println(count + ". Student #6 - " + students.get(5).getName());
+        }).start();
+
+        count++;
+    }
+
+    @GetMapping("/students/print-synchronized")
+    public void printSynchronizedNames() {
+        synchronizedNames();
+    }
+
+    final Object flag = new Object();
+
+    public void synchronizedNames() {
+        List<Student> students = studentService.findAll();
+
+        synchronized (flag) {
+            System.out.println(count + ". Student #1 - " + students.get(0).getName());
+            System.out.println(count + ". Student #2 - " + students.get(1).getName());
+            count++;
+        }
+
+        synchronized (flag) {
+            new Thread(() -> {
+                System.out.println(count + ". Student #3 - " + students.get(2).getName());
+                System.out.println(count + ". Student #4 - " + students.get(3).getName());
+                count++;
+            }).start();
+        }
+
+        synchronized (flag) {
+            new Thread(() -> {
+                System.out.println(count + ". Student #5 - " + students.get(4).getName());
+                System.out.println(count + ". Student #6 - " + students.get(5).getName());
+                count++;
+            }).start();
+        }
     }
 }
