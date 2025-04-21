@@ -8,6 +8,8 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -76,5 +78,43 @@ public class StudentService {
 
     public List<Student> findAll() {
         return studentRepository.findAll();
+    }
+
+    public void parallelStudentsName() {
+        List<Student> students = findAll();
+
+        System.out.println("Student #1 - " + students.get(0).getName());
+        System.out.println("Student #2 - " + students.get(1).getName());
+
+        new Thread(() -> {
+            System.out.println("Student #3 - " + students.get(2).getName());
+            System.out.println("Student #4 - " + students.get(3).getName());
+        }).start();
+
+        new Thread(() -> {
+            System.out.println("Student #5 - " + students.get(4).getName());
+            System.out.println("Student #6 - " + students.get(5).getName());
+        }).start();
+    }
+
+    final Object flag = new Object();
+    final Object flag2 = new Object();
+
+    public void synchronizedNames() {
+        int count = 0;
+        List<Student> students = findAll();
+
+        System.out.println(count++ + ". Student #1 - " + students.get(0).getName());
+        System.out.println(count++ + ". Student #2 - " + students.get(1).getName());
+
+        synchronized (flag) {
+            System.out.println(count++ + ". Student #3 - " + students.get(2).getName());
+            System.out.println(count++ + ". Student #4 - " + students.get(3).getName());
+        }
+
+        synchronized (flag2) {
+            System.out.println(count++ + ". Student #5 - " + students.get(4).getName());
+            System.out.println(count++ + ". Student #6 - " + students.get(5).getName());
+        }
     }
 }
