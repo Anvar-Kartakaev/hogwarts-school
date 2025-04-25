@@ -1,5 +1,6 @@
 package ru.hogwarts.school.controller;
 
+import com.sun.tools.javac.Main;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -159,5 +163,15 @@ public class StudentController {
     @GetMapping("/average-age-allStudents")
     public Double getAverageAgeAllStudents() {
         return studentService.findAll().stream().map(Student::getAge).mapToDouble(Integer::intValue).average().getAsDouble();
+    }
+
+    @GetMapping("/students/print-parallel")
+    public void printParallelStudentsName() {
+        studentService.parallelStudentsName();
+    }
+
+    @GetMapping("/students/print-synchronized")
+    public void printSynchronizedNames() {
+        studentService.synchronizedNames();
     }
 }
